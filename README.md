@@ -9,11 +9,11 @@ cd rust
 cargo run
 ```
 
-<img width="300" src="https://github.com/godot-game-samples/godot-websocket/blob/main/assets/screenshot/screen.png">
+<img width="300" src="https://github.com/godot-game-samples/websocket-chat-server/blob/main/assets/screenshot/screen.png">
 
 Can be sent by multiple clients
 
-<img width="300" src="https://github.com/godot-game-samples/godot-websocket/blob/main/assets/screenshot/screen2.png">
+<img width="300" src="https://github.com/godot-game-samples/websocket-chat-server/blob/main/assets/screenshot/screen2.png">
 
 ## Author
 
