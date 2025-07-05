@@ -3,7 +3,7 @@ extends Node2D
 const PORT = 9080
 
 var tcp_server := TCPServer.new()
-var socket := WebSocketPeer.new()
+var peers: Dictionary = {}
 
 func log_message(message: String) -> void:
 	var time := "[color=#aaaaaa] %s |[/color] " % Time.get_time_string_from_system()
@@ -17,16 +17,26 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	while tcp_server.is_connection_available():
 		var conn: StreamPeerTCP = tcp_server.take_connection()
-		assert(conn != null)
-		socket.accept_stream(conn)
+		if conn:
+			var peer: WebSocketPeer = WebSocketPeer.new()
+			if peer.accept_stream(conn) == OK:
+				var id := conn.get_connected_host() + ":" + str(conn.get_connected_port())
+				peers[id] = peer
+				log_message("🔌 client connection: %s" % id)
+			else:
+				log_message("⚠️ Connection Failure")
 
-	socket.poll()
+	# Receive messages from each client
+	for id: String in peers.keys():
+		var peer: WebSocketPeer = peers[id]
+		peer.poll()
 
-	if socket.get_ready_state() == WebSocketPeer.STATE_OPEN:
-		while socket.get_available_packet_count():
-			log_message(socket.get_packet().get_string_from_ascii())
-
+		while peer.get_available_packet_count() > 0:
+			var packet: PackedByteArray = peer.get_packet()
+			var msg: String = packet.get_string_from_utf8()
+			log_message("📨 [%s] %s" % [id, msg])
 
 func _exit_tree() -> void:
-	socket.close()
+	for id in peers:
+		peers[id].close()
 	tcp_server.stop()
